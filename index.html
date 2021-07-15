@@ -234,6 +234,7 @@
 		@media(max-width: 775px) {
 			.menu {
 				display: none;
+				width: 100%;
 			}
 			.content {
 				margin-left: 0;
@@ -249,7 +250,7 @@
 	<div class="content">
 		<header>Tote Manager</header>
 		<hr>
-		<h1>Bring Down a Tote</h1>
+		<h1 id="menu-toggle">Bring Down a Tote</h1>
 		<div>
 			<h3>Numbered Totes</h3>
 			<div class="wrapper">
@@ -415,6 +416,10 @@
 			e.preventDefault();
 			saveEntree(document.getElementById('big').value, 'big', true);
 			document.getElementById('big').value='Choose a Tote';
+		});
+		document.getElementById('menu-toggle').addEventListener('click', function(e) {
+			e.preventDefault();
+			document.querySelector('.menu').style.display='block';
 		});
 
 		/*
