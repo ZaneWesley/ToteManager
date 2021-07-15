@@ -164,6 +164,7 @@
 		@media(max-width: 775px) {
 			.menu {
 				display: none;
+				width: 100%;
 			}
 			.content {
 				margin-left: 0;
@@ -176,9 +177,9 @@
 	<div class="content">
 		<header>Tote Manager</header>
 		<hr>
-		<h1>Tote Log</h1>
+		<h1 id="menu-toggle">Tote Log</h1>
 		<div class="tabs">
-			<div>Filter Log:</div>
+			<!--<div>Filter Log:</div>-->
 			<div class="tab" style="background-color: #0068b3;" id="filter-numbered">Numbered</div>
 			<div class="tab" style="background-color: #65b561;" id="filter-themed">Themed</div>
 			<div class="tab" style="background-color: #f99d32;" id="filter-big">Big Toys</div>
@@ -247,6 +248,10 @@
 		});
 		document.getElementById('filter-all').addEventListener('click', function(e) {
 			filterTable('all');
+		});
+		document.getElementById('menu-toggle').addEventListener('click', function(e) {
+			e.preventDefault();
+			document.querySelector('.menu').style.display='block';
 		});
 		/*
 			Database Functions
