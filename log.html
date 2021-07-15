@@ -182,6 +182,7 @@
 			<div class="tab" style="background-color: #0068b3;" id="filter-numbered">Numbered</div>
 			<div class="tab" style="background-color: #65b561;" id="filter-themed">Themed</div>
 			<div class="tab" style="background-color: #f99d32;" id="filter-big">Big Toys</div>
+			<div class="tab" style="background-color: #555555;" id="filter-all">All</div>
 		</div>
 		<div>
 			<table id="log">
@@ -243,6 +244,9 @@
 		});
 		document.getElementById('filter-big').addEventListener('click', function(e) {
 			filterTable('big');
+		});
+		document.getElementById('filter-all').addEventListener('click', function(e) {
+			filterTable('all');
 		});
 		/*
 			Database Functions
