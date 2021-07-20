@@ -266,7 +266,7 @@
 		// Loads tote history and listens for upcoming ones.
 		function loadItems() {
 		  // Create the query to load items and listen for new ones.
-		  var query = firebase.firestore().collection('totes').orderBy('date', 'asc');
+		  var query = firebase.firestore().collection('totes').orderBy('date', 'desc');
 		  
 		  // Start listening to the query.
 		  query.onSnapshot(function(snapshot) {
