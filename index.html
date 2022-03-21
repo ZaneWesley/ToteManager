@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- General -->
+	<link rel="manifest" href="manifest.json">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="application-name" content="Tote Manager">
+  	<link rel="shortcut icon" href="icon.png">
+	<link rel="icon" type="image/png" sizes="500x500" href="icon.png">
+	<!-- Apple -->
+	<meta name="apple-mobile-web-app-title" content="Tote Manager">
+	<link rel="apple-touch-icon" sizes="500x500" href="icon.png">
+	<link rel="mask-icon" href="icon.png" color="#DFB698">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.1/tinycolor.min.js"></script>
+	<!-- https://github.com/chrisdavies/tiny-date-picker -->
+	<link rel="stylesheet" href="tiny-date-picker.css">
+	<script src="tiny-date-picker.js"></script>
+	<title>Tote Manager</title>
+
+	<style>
+		:root {
+			--main-theme-color: #2196F3;
+			--main-theme-color-hover: #0086f0;
+			--theme-color: #2196F3;
+			--theme-color-hover: #0086f0;
+			--device-theme: #fff;
+			--device-theme-text: #000;
+			--device-theme-hover: #eee;
+		}
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			transition: background-color 0.3s;
+		}
+		html, body {
+			width: 100%;
+			height: 100%;
+			background-color: var(--device-theme);
+		}
+		body {
+			overflow-x: hidden;
+			font-family: 'Poppins', sans-serif;
+		}
+		header {
+			background-color: var(--theme-color);
+			color: #fff;
+			padding: 0.5em;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		header h1 {
+			cursor: text;
+		}
+		table {
+			border-collapse: collapse;
+		    border-spacing: 0;
+		    width: 100%;
+		    display: table;
+		    color: var(--device-theme-text);
+		}
+		table tr {
+			border-bottom: 1px solid #ddd;
+			display: table-row;
+			cursor: pointer;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		table tr:first-child {
+			cursor: initial;
+		}
+		table th:first-child {
+			padding-left: 16px;
+		}
+		table tr th {
+			padding: 8px 8px;
+		    display: table-cell;
+		    text-align: left;
+		    vertical-align: top;
+		    font-weight: bold;
+		}
+		table tr td:first-child {
+			padding-left: 16px;
+		}
+		table tr td {
+			padding: 8px 8px;
+		    display: table-cell;
+		    text-align: left;
+		    vertical-align: top;
+		}
+		table tr:not(:first-child):hover {
+			background-color: var(--device-theme-hover);
+		}
+		.flagged {
+			border-left: 10px solid #f44336;
+			background-color: rgba(244, 67, 54, 0.1);
+		}
+		.search-icon, .menu-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			cursor: pointer;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		.search-icon {
+			right: 50px;
+		}
+		.search-icon svg, .menu-icon svg {
+			width: 30px;
+			height: 30px;
+		}
+		#tabs {
+			position: fixed;
+			left: 0;
+			bottom: 0;
+			padding: 0;
+			padding-bottom: 1em;
+			width: 100%;
+			box-shadow: 5px -5px 5px rgba(0, 0, 0, 0.12);
+			background-color: var(--device-theme);
+		}
+		.tab {
+			float: left;
+			width: 25%;
+			padding: 0.5em;
+			text-align: center;
+			cursor: pointer;
+			color: var(--device-theme-text);
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		.tab:hover {
+			background-color: var(--device-theme-hover);
+		}
+		.tab.active {
+			background-color: var(--theme-color);
+			color: #fff;
+		}
+		.tab.active:hover {
+			background-color: var(--theme-color);
+		}
+		.add {
+			position: fixed;
+			right: 1em;
+			bottom: 4.5em;
+			background-color: var(--theme-color);
+			border-radius: 50%;
+			width: 50px;
+			height: 50px;
+			cursor: pointer;
+			box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.12);
+			transition: all 0.3s;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		.add:hover {
+			background-color: var(--theme-color-hover);
+			box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.12);
+		}
+		.add svg {
+			width: 50px;
+			height: 50px;
+		}
+		.modal {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0.9);/**/
+			width: 50%;
+			height: auto;
+			background-color: var(--device-theme);
+			color: var(--device-theme-text);
+			border-radius: 5px;
+			z-index: 1;
+			transition: all 0.3s;
+			visibility: hidden;
+			opacity: 0;
+			padding: 1em;
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		.overlay {
+			height: 100%;
+			width: 100%;
+			position: fixed;
+			left: 0;
+			top: 0;
+			background-color: rgba(0,0,0, 0.5);
+			overflow-x: hidden;
+			transition: all 0.3s;
+			visibility: hidden;
+			opacity: 0;
+
+		}
+		.modal h2 {
+			text-align: center;
+		}
+		.modal button {
+			float: right;
+		}
+		.open .modal {
+			transform: translate(-50%, -50%) scale(1);
+			/*animation: elastic 0.3s ease;
+			-webkit-animation: elastic 0.3s ease;*/
+			visibility: visible;
+			opacity: 1;
+		}
+		.open .overlay {
+			visibility: visible;
+			opacity: 1;
+		}
+		@keyframes elastic {
+			0% {
+				transform: translate(-50%, -50%) scale(0.9);
+			}
+			50% {
+				transform: translate(-50%, -50%) scale(1.1);
+			}
+			100% {
+				transform: translate(-50%, -50%) scale(1);
+			}
+		}
+		@-webkit-keyframes elastic {
+			0% {
+				transform: translate(-50%, -50%) scale(0.9);
+			}
+			50% {
+				transform: translate(-50%, -50%) scale(1.1);
+			}
+			100% {
+				transform: translate(-50%, -50%) scale(1);
+			}
+		}
+		label {
+			display: block;
+			font-size: 1.1em;
+			color: var(--device-theme-text);
+		}
+		input {
+			width: 100%;
+			outline: none;
+			padding: 16px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+			color: var(--device-theme-text);
+			background-color: transparent;
+		}
+		button {
+			border: none;
+			padding: 16px;
+			font-size: 16px;
+		    vertical-align: middle;
+		    overflow: hidden;
+		    text-align: center;
+		    cursor: pointer;
+		    white-space: nowrap;
+		    background-color: var(--theme-color);
+		    color: #fff;
+		    transition: all 0.3s;
+		}
+		button:hover {
+			background-color: var(--theme-color-hover);
+		}
+		select {
+			display: block;
+			font-size: 16px;
+			font-family: sans-serif;
+			font-weight: normal;
+			color: var(--device-theme-text);
+			line-height: 1.3;
+			padding: 8px;
+			width: 100%;
+			max-width: 100%;
+			box-sizing: border-box;
+			margin: 0;
+			border: 1px solid #ccc;
+			box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
+			border-radius: 0px;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			appearance: none;
+			background-color: transparent;
+			background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')/*,
+			  linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%)*/;
+			background-repeat: no-repeat, repeat;
+			background-position: right .7em top 50%, 0 0;
+			background-size: .65em auto, 100%;
+		}
+		select::-ms-expand {
+			display: none;
+		}
+		select:hover {
+			border-color: var(--device-theme-hover);
+		}
+		select:focus {
+			border-color: #ccc;
+			/*box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
+			box-shadow: 0 0 0 3px -moz-mac-focusring;*/
+			color: #000;
+			outline: none;
+		}
+		select option {
+			font-weight: normal;
+			color: #000;
+		}
+		.location, .flag, .notes {
+			display: none;
+		}
+		.palette {
+			display: grid;
+			grid-template-columns: 40px 40px 40px 40px;
+			grid-template-rows: 40px;
+			grid-gap: 20px 20px;
+		}
+		.palette div {
+			border-radius: 5px;
+			transition: 0.3s;
+		}
+		.palette div:hover {
+			/*opacity: 0.7;*/
+			filter: brightness(90%);
+			cursor: pointer;
+		}
+		/* The switch - the box around the slider */
+		.switch {
+		  position: relative;
+		  display: inline-block;
+		  width: 60px;
+		  height: 34px;
+		}
+
+		/* Hide default HTML checkbox */
+		.switch input {
+		  opacity: 0;
+		  width: 0;
+		  height: 0;
+		}
+
+		/* The slider */
+		.slider {
+		  position: absolute;
+		  cursor: pointer;
+		  top: 0;
+		  left: 0;
+		  right: 0;
+		  bottom: 0;
+		  background-color: #ccc;
+		  -webkit-transition: .4s;
+		  transition: .4s;
+		}
+
+		.slider:before {
+		  position: absolute;
+		  content: "";
+		  height: 26px;
+		  width: 26px;
+		  left: 4px;
+		  bottom: 4px;
+		  background-color: white;
+		  -webkit-transition: .4s;
+		  transition: .4s;
+		}
+
+		input:checked + .slider {
+		  background-color: var(--theme-color);
+		}
+
+		input:focus + .slider {
+		  box-shadow: 0 0 1px var(--theme-color);
+		}
+
+		input:checked + .slider:before {
+		  -webkit-transform: translateX(26px);
+		  -ms-transform: translateX(26px);
+		  transform: translateX(26px);
+		}
+
+		/* Rounded sliders */
+		.slider.round {
+		  border-radius: 34px;
+		}
+
+		.slider.round:before {
+		  border-radius: 50%;
+		}
+
+		@media (max-width: 775px) {
+			h1 {
+				font-size: 1.5em;
+			}
+			.modal {
+				width: 85%;
+			}
+			.add {
+				bottom: 6em;
+			}
+		}
+		/*
+			Tiny Date Picker Style Fixes
+		*/
+		.dp-modal {
+			z-index: 2;
+		}
+		.dp:before {
+			background: var(--theme-color);
+		}
+		.dp-selected:hover, .dp-selected:focus, .dp-selected {
+			background: var(--theme-color);
+		}
+		.dp-day:hover, .dp-month:hover, .dp-year:hover, .dp-current:focus, .dp-current, .dp-day:focus, .dp-month:focus, .dp-year:focus {
+			background: var(--theme-color);
+		}
+		.dp-close:hover, .dp-clear:hover, .dp-today:hover {
+			background: var(--theme-color);
+		}
+		.dp-day-today:after {
+			border-top: 7px solid var(--theme-color);
+			border-right: 7px solid var(--theme-color);
+		}
+		@media (max-width: 480px) {
+			.dp-modal .dp {
+				width: 85%;
+			}
+		}
+	</style>
+</head>
+<body>
+
+	<header>
+		<h1>Tote Manager</h1>
+		<div class="menu-icon"><svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M442 114H6a6 6 0 0 1-6-6V84a6 6 0 0 1 6-6h436a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6zm0 160H6a6 6 0 0 1-6-6v-24a6 6 0 0 1 6-6h436a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6zm0 160H6a6 6 0 0 1-6-6v-24a6 6 0 0 1 6-6h436a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6z"></path></svg></div>
+		<div class="search-icon"><svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#fff" d="M508.5 468.9L387.1 347.5c-2.3-2.3-5.3-3.5-8.5-3.5h-13.2c31.5-36.5 50.6-84 50.6-136C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c52 0 99.5-19.1 136-50.6v13.2c0 3.2 1.3 6.2 3.5 8.5l121.4 121.4c4.7 4.7 12.3 4.7 17 0l22.6-22.6c4.7-4.7 4.7-12.3 0-17zM208 368c-88.4 0-160-71.6-160-160S119.6 48 208 48s160 71.6 160 160-71.6 160-160 160z"></path></svg></div>
+	</header>
+	<table id="inventory">
+		<tr>
+			<th>Item</th>
+			<th class="notes">Notes</th>
+			<th>Date</th>
+			<th class="location">Location</th>
+			<th class="flag">Flagged</th>
+		</tr>
+		<!--<tr>
+			<td>Sample Item</td>
+			<td>0</td>
+			<td>Sample Size</td>
+			<td>Sample Date</td>
+		</tr>-->
+	</table>
+	<div style="padding: 3em;">&nbsp;</div>
+
+	<div id="tabs">
+		<div class="tab active" data-tab="Number-Totes" data-tab-color="#2196F3">Number Totes</div>
+		<div class="tab" data-tab="Themed-Totes" data-tab-color="#aa00ff">Themed Totes</div>
+		<div class="tab" data-tab="Big-Toys" data-tab-color="#04AA6D">Big Toys</div>
+		<div class="tab" data-tab="Flagged" data-tab-color="#f44336">Requested Totes</div>
+	</div>
+
+	<div class="add">
+		<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#fff" d="M368 224H224V80c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v144H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h144v144c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16V288h144c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"></path></svg>
+	</div>
+
+	<div id="add-form">
+		<div class="overlay"></div>
+		<div class="modal">
+			<h2>Add Tote</h2>
+			<label for="name">Name</label>
+			<input id="name" type="text" autocomplete="off">
+			<label for="notes">Notes</label>
+			<input id="notes" type="text" autocomplete="off">
+			<label for="date">Date</label>
+			<input id="date" type="text" autocomplete="off">
+			<label for="location">Location</label>
+			<select id="location">
+				<option value="Number-Totes">Number Totes</option>
+				<option value="Themed-Totes">Themed Totes</option>
+				<option value="Big-Toys">Big Toys</option>
+			</select>
+			<br><br>
+			<button id="addItem">Add & Update</button>
+		</div>
+	</div>
+
+	<div id="edit-form">
+		<div class="overlay"></div>
+		<div class="modal">
+			<h2>Edit Item</h2>
+			<label for="edit-name">Name</label>
+			<input id="edit-name" type="text" autocomplete="off">
+			<label for="edit-notes">Notes</label>
+			<input id="edit-notes" type="text" autocomplete="off">
+			<label for="edit-date">Date</label>
+			<input id="edit-date" type="text" autocomplete="off">
+			<label for="edit-location">Location</label>
+			<select id="edit-location">
+				<option value="Number-Totes">Number Totes</option>
+				<option value="Themed-Totes">Themed Totes</option>
+				<option value="Big-Toys">Big Toys</option>
+			</select>
+			<label for="edit-flag">Requested</label>
+			<label class="switch">
+				<input id="edit-flag" type="checkbox">
+				<span class="slider round"></span>
+			</label>
+			<input id="edit-id" type="hidden" style="display: none">
+			<br><br>
+			<button id="deleteItem" style="float: left; background-color: #f44336;">Delete</button>
+			<button id="updateItem">Update & Save</button>
+		</div>
+	</div>
+
+	<div id="searchbar">
+		<div class="overlay"></div>
+		<div class="modal">
+			<h2>Search All Totes</h2>
+			<input id="search" type="text" placeholder="Search tote name" autocomplete="off">
+			<br><br>
+			<button id="searchBtn">Search</button>
+		</div>
+	</div>
+
+	<div id="confirm-delete">
+		<div class="overlay"></div>
+		<div class="modal">
+			<h2>Confirm Delete</h2>
+			<label>Are you sure you want to delete this item?</label>
+			<br><br>
+			<button id="cancel-delete-btn" style="float: left;">Cancel</button>
+			<button id="delete-btn" style="background-color: #f44336;">Delete</button>
+		</div>
+	</div>
+
+	<div id="menu">
+		<div class="overlay"></div>
+		<div class="modal">
+			<h2>Menu</h2>
+			<!--<label>Choose a Theme Color</label>
+			<div class="palette">
+				<div style="background-color: #f44336;">&nbsp;</div>
+				<div style="background-color: #04AA6D;">&nbsp;</div>
+				<div style="background-color: #2196F3;">&nbsp;</div>
+				<div style="background-color: #ff5722;">&nbsp;</div>
+			</div>
+			<br><br>-->
+			<label for="themeToggle">Choose Theme Mode</label>
+			<label for="themeToggle" class="switch">
+				<input id="themeToggle" type="checkbox">
+				<span class="slider round"></span>
+			</label>
+			<label for="instr">Navigating the App</label>
+			<ul style="margin-left: 2em;">
+				<li>Click/tap the plus sign to add totes to the inventory</li>
+				<li>Click/tap a tote to edit or delete it</li>
+				<li>Click/tap outside the popup box to cencel changes</li>
+				<li>Click/tab and hold to request a tote</li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- The core Firebase JS SDK is always required and must be listed first -->
+	<script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+
+	<!-- TODO: Add SDKs for Firebase products that you want to use
+	     https://firebase.google.com/docs/web/setup#available-libraries -->
+	<script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-firestore.js"></script>
+
+	<script>
+	  // Your web app's Firebase configuration
+	  var firebaseConfig = {
+		    apiKey: "AIzaSyCEOzvPnKE5IZ7Pz-Z91dH7ihiu7OnzrMk",
+		    authDomain: "backstock-manager.firebaseapp.com",
+		    projectId: "backstock-manager",
+		    storageBucket: "backstock-manager.appspot.com",
+		    messagingSenderId: "800102189398",
+		    appId: "1:800102189398:web:3b3e6af5d2866ed76aeef7"
+		  };
+		  // Initialize Firebase
+		  firebase.initializeApp(firebaseConfig);
+	</script>
+
+	<script>
+		/***************************
+			* Event Management 	*
+		****************************/
+
+		if('serviceWorker' in navigator) {
+		  navigator.serviceWorker.register('sw.js');
+		};
+
+		var activeTab = "Number-Totes";
+
+		document.querySelector('.search-icon').addEventListener('click', function(e) {
+			e.preventDefault();
+			document.getElementById('searchbar').classList.toggle('open');
+			if(document.getElementById('searchbar').classList.contains('open')) document.getElementById('search').focus();
+		});
+
+		document.querySelector('.menu-icon').addEventListener('click', function(e) {
+			e.preventDefault();
+			document.getElementById('menu').classList.toggle('open');
+		});
+
+		document.getElementById('search').addEventListener('keyup', function(e) {
+			if (e.keyCode == 13 || e.which == 13) {
+				document.getElementById('searchbar').classList.remove('open');
+				document.getElementById('search').value="";
+			} else {
+				filterInventory();
+			}
+		});
+
+		document.getElementById('searchBtn').addEventListener('click', function(e) {
+			e.preventDefault();
+			document.getElementById('searchbar').classList.remove('open');
+			document.getElementById('search').value="";
+		});
+
+		document.querySelector('.add').addEventListener('click', function(e) {
+			e.preventDefault();
+			document.getElementById('add-form').classList.toggle('open');
+		});
+
+		document.querySelectorAll('.overlay').forEach(function(elem) {
+			elem.addEventListener('click', function(e) {
+				e.preventDefault();
+				this.parentNode.classList.toggle('open');
+			});
+		});
+
+		document.querySelectorAll('.tab').forEach(function(elem) {
+			//click event listener
+			elem.addEventListener('click', function(e) {
+				e.preventDefault();
+				//tab scripting
+				if(this.getAttribute('data-tab') !== "Flagged") {
+					displayTab(this.getAttribute('data-tab'));
+				} else {
+					displayFlagged("true");
+				}
+				document.querySelectorAll('.tab').forEach(function(elem) {
+					elem.classList.remove('active');
+				});
+				this.classList.add('active');
+				//color scripting
+				document.documentElement.style.setProperty('--theme-color', this.getAttribute('data-tab-color'));
+				document.documentElement.style.setProperty('--theme-color-hover', tinycolor(this.getAttribute('data-tab-color')).darken(10).toString());
+				//tab customizing
+				document.getElementById('location').value = activeTab;
+			});
+		});
+
+		/*document.querySelectorAll('.palette div').forEach(function(elem) {
+			elem.addEventListener('click', function(e) {
+				e.preventDefault();
+				document.documentElement.style.setProperty('--theme-color', this.style.backgroundColor);
+				document.documentElement.style.setProperty('--theme-color-hover', tinycolor(this.style.backgroundColor).darken(10).toString());
+				localStorage.setItem('backstock-theme', this.style.backgroundColor);
+			});
+		});*/
+
+		document.getElementById('themeToggle').addEventListener('change', function(e) {
+			if(this.checked == true) {
+				setTheme('dark');
+			} else {
+				setTheme('light');
+			}
+		});
+
+		document.getElementById('addItem').addEventListener('click', function(e) {
+			if(hasValue('#name') && hasValue('#date') /*&& hasValue('#date') */&& hasValue('#location')) {
+				saveItem(document.getElementById('name').value, document.getElementById('notes').value, document.getElementById('date').value, document.getElementById('location').value);
+				document.querySelectorAll('input[type=text]').forEach(function(elem) {
+					elem.value = "";
+				});
+				this.parentNode.parentNode.classList.toggle('open');
+			}
+		});
+
+		document.getElementById('updateItem').addEventListener('click', function(e) {
+			if(hasValue('#edit-id') && hasValue('#edit-name') && hasValue('#edit-date') && hasValue('#edit-location')) {
+				updateItem(document.getElementById('edit-id').value, document.getElementById('edit-name').value, document.getElementById('edit-notes').value, document.getElementById('edit-date').value, document.getElementById('edit-location').value, document.getElementById('edit-flag').checked);
+				document.querySelectorAll('input[type=text]').forEach(function(elem) {
+					elem.value = "";
+				});
+				this.parentNode.parentNode.classList.toggle('open');
+			}
+		});
+
+		TinyDatePicker('#edit-date');
+		TinyDatePicker('#date');
+
+		document.getElementById('deleteItem').addEventListener('click', function(e) {
+				//removeItem(document.getElementById('edit-id').value);
+				/*document.querySelectorAll('input[type=text]').forEach(function(elem) {
+					elem.value = "";
+				});
+				this.parentNode.parentNode.classList.toggle('open');*/
+				confirmDelete(document.getElementById('edit-id').value);
+		});
+
+		window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+			var theme = e.matches ? "dark" : "light";
+			setTheme(theme);
+		});
+
+		loadItems();
+		displayTab('Number-Totes');
+		setTheme();
+
+		/**************************
+			* Item Management 	*
+		***************************/
+
+		// Template for messages.
+		var TABLE_ROW_TEMPLATE =
+		    `<td class="name"></td>
+		    <td class="notes"></td>
+		    <td class="date"></td>
+		    <td class="location"></td>
+		    <td class="flag"></td>`;
+
+		// Saves a new item on the Cloud Firestore.
+		function saveItem(name, notes, date, location) {
+		  // Add a new item entry to the Firebase database.
+		  	return firebase.firestore().collection('totemanager').add({
+		    name: name,
+		    notes: notes,
+		    date: date,
+		    location: location,
+		    flagged: false,
+		    id: firebase.firestore().collection('totemanager').doc().id
+		  }).then(function() {
+		  	displayTab(activeTab);
+		  }).catch(function(error) {
+		    console.error('Error writing new tote to database', error);
+		  });
+		}
+
+		function updateItem(id, name, notes, date, location, flagged) {
+			// Edit item entry in the Firebase database.
+		  	return firebase.firestore().collection('totemanager').doc(id).update({
+			    name: name,
+			    notes: notes,
+			    date: date,
+			    location: location,
+			    flagged: flagged
+			}).then(function() {
+				//deleteItem(id);
+				/*document.getElementById('inventory').innerHTML=`<tr><th>Item</th><th># In Stock</th><th>Size</th><th>Date</th><th class="location">Location</th><th class="flag">Flagged</th></tr>`;*/
+				loadItems();
+				displayTab(activeTab);
+			}).catch(function(error) {
+		    	console.error('Error updating totes in database', error);
+			});
+		}
+
+		function removeItem(id) {
+			// Remove item entry from the Firebase database.
+		  	return firebase.firestore().collection('totemanager').doc(id).delete().catch(function(error) {
+		    	console.error('Error deleting tote from database', error);
+			});
+		}
+
+		// Loads chat messages history and listens for upcoming ones.
+		function loadItems() {
+		  // Create the query to load items and listen for new ones.
+		  var query = firebase.firestore().collection('totemanager').orderBy('name', 'asc');
+		  
+		  // Start listening to the query.
+		  query.onSnapshot(function(snapshot) {
+		    snapshot.docChanges().forEach(function(change) {
+		      if (change.type === 'removed') {
+		        deleteItem(change.doc.id);
+		      } else {
+		        var item = change.doc.data();
+		        deleteItem(change.doc.id);
+		        displayItem(change.doc.id, item.name, item.notes, item.date, item.location, item.flagged);
+		      }
+		    });
+		  });
+		}
+
+		// Delete an item from the UI.
+		function deleteItem(id) {
+		  var div = document.getElementById(id);
+		  // If an element for that message exists we delete it.
+		  if (div) {
+		    div.parentNode.removeChild(div);
+		  }
+		}
+
+		// Displays an item in the UI.
+		function displayItem(id, name, notes, date, location, flagged) {
+		  var item = document.createElement('tr');
+		  item.innerHTML = TABLE_ROW_TEMPLATE;
+		  item.id = id;
+		  item.querySelector('.name').innerHTML=name;
+		  item.querySelector('.notes').innerHTML=notes;
+		  item.querySelector('.date').innerHTML=formattedDate(date);
+		  item.querySelector('.location').innerHTML=location;
+		  item.querySelector('.flag').innerHTML=flagged;
+
+		  if(flagged == true) {
+		  	item.classList.add('flagged');
+		  }
+
+		  /*item.ondblclick = function(e) {
+		  	console.log(!item.classList.contains('flagged'));
+		  	flagItem(item, !item.classList.contains('flagged'));
+		  }*/
+		  item.onclick = function(e) {
+		  	editItem(item);
+		  	//flagItem(item, !item.classList.contains('flagged'));
+		  }
+		  item.setAttribute('data-long-press-delay', 100);
+		  item.addEventListener('long-press', function(e) {
+		  	flagItem(item, !item.classList.contains('flagged'));
+		  	//editItem(item);
+		  });
+
+		  document.getElementById('inventory').appendChild(item);
+		  displayTab(activeTab);
+
+		}
+
+		function formattedDate(date) {
+			var dateString = date.split('-');
+			if(dateString.length == 3) {
+				var newDate = dateString[1] + '/' + dateString[2] + '/' + dateString[0];
+			return newDate;
+			} else {
+				return date;
+			}
+		}
+
+		function unformattedDate(date) {
+			var dateString = date.split('/');
+			if(dateString.length == 3) {
+				var newDate = dateString[2] + '-' + dateString[1] + '-' + dateString[0];
+			return newDate;
+			} else {
+				return date;
+			}
+		}
+
+		function editItem(itemElem) {
+			var item = {
+				name: itemElem.querySelector('.name').innerHTML,
+				notes: itemElem.querySelector('.notes').innerHTML,
+				date: itemElem.querySelector('.date').innerHTML,
+				location: itemElem.querySelector('.location').innerHTML,
+				flagged: itemElem.querySelector('.flag').innerHTML
+			};
+			document.getElementById('edit-form').classList.toggle('open');
+			document.getElementById('edit-name').value = item.name;
+			document.getElementById('edit-notes').value = item.notes;
+			document.getElementById('edit-date').value = item.date;
+			document.getElementById('edit-id').value = itemElem.id;
+			document.getElementById('edit-location').value = item.location;
+			document.getElementById('edit-flag').checked = item.flagged == 'true' ? true : false;
+		}
+
+		function confirmDelete(id) {
+			document.getElementById('confirm-delete').classList.add('open');
+			document.getElementById('edit-form').classList.remove('open');
+
+			document.getElementById('delete-btn').addEventListener('click', function(e) {
+				removeItem(id);
+				document.querySelectorAll('input[type=text]').forEach(function(elem) {
+					elem.value = "";
+				});
+				this.parentNode.parentNode.classList.remove('open');
+				document.getElementById('edit-form').classList.remove('open');
+				this.onclick="";
+			});
+
+			document.getElementById('cancel-delete-btn').addEventListener('click', function(e) {
+				this.parentNode.parentNode.classList.remove('open');
+				document.getElementById('edit-form').classList.add('open');
+				this.onclick="";
+			});
+		}
+
+		function flagItem(elem, bool) {
+			var item = {
+				name: elem.querySelector('.name').innerHTML,
+				notes: elem.querySelector('.notes').innerHTML,
+				date: elem.querySelector('.date').innerHTML,
+				location: elem.querySelector('.location').innerHTML,
+				flagged: elem.querySelector('.flag').innerHTML
+			};
+			if(bool == true) {
+				elem.classList.add('flagged');
+			} else {
+				elem.classList.remove('flagged');
+			}
+			updateItem(elem.id, item.name, item.inStock, item.size, item.date, item.location, bool);
+		}
+
+		function filterInventory() {
+		  var input, filter, table, tr, td, i, txtValue;
+		  input = document.getElementById("search");
+		  filter = input.value.toUpperCase();
+		  table = document.getElementById("inventory");
+		  tr = table.getElementsByTagName("tr");
+		  for (i = 0; i < tr.length; i++) {
+		    td = tr[i].getElementsByTagName("td")[0];
+		    if (td) {
+		      txtValue = td.textContent || td.innerText;
+		      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+		        tr[i].style.display = "";
+		      } else {
+		        tr[i].style.display = "none";
+		      }
+		    }
+		  }
+		}
+
+		function displayTab(tab) {
+		  var input, filter, table, tr, td, cell, i, j;
+		  //input = document.getElementById("myInput");
+		  //filter = input.value.toUpperCase();
+		  filter = tab.toUpperCase();
+		  table = document.getElementById("inventory");
+		  tr = table.getElementsByTagName("tr");
+		  for (i = 1; i < tr.length; i++) {
+		    // Hide the row initially.
+		    tr[i].style.display = "none";
+		  
+		    td = tr[i].getElementsByTagName("td");
+		    for (var j = 0; j < td.length; j++) {
+		      cell = tr[i].getElementsByTagName("td")[j];
+		      if (cell) {
+		        if (cell.innerHTML.toUpperCase().indexOf(filter) > -1) {
+		          tr[i].style.display = "";
+		          break;
+		        } 
+		      }
+		    }
+		  }
+		  activeTab = tab;
+		  switch(activeTab) {
+		  	case 'Number-Totes':
+		  		document.querySelector('header h1').innerHTML="Number Totes";
+		  		break;
+		  	case 'Themed-Totes':
+		  		document.querySelector('header h1').innerHTML="Themed Totes";
+		  		break;
+		  	case 'Big-Toys':
+		  		document.querySelector('header h1').innerHTML="Big Toys";
+		  		break;
+		  	/*case 'Backup-Toiletries':
+		  		document.querySelector('header h1').innerHTML="Backup Toiletries";
+		  		break;*/
+		  }
+		}
+
+		function displayFlagged(val) {
+		  var input, filter, table, tr, td, i, txtValue;
+		  //input = document.getElementById("search");
+		  //filter = input.value.toUpperCase();
+		  filter = val.toUpperCase();
+		  table = document.getElementById("inventory");
+		  tr = table.getElementsByTagName("tr");
+		  for (i = 0; i < tr.length; i++) {
+		    td = tr[i].getElementsByTagName("td")[5];
+		    if (td) {
+		      txtValue = td.textContent || td.innerText;
+		      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+		        tr[i].style.display = "";
+		      } else {
+		        tr[i].style.display = "none";
+		      }
+		    }
+		  }
+		  activeTab = "Flagged";
+		  document.querySelector('header h1').innerHTML="Requested Totes";
+		}
+
+		/**************************
+			* Helper Functions *
+		***************************/
+
+		function hasValue(selector) {
+			var elem = document.querySelector(selector);
+			var value = elem.value;
+			var hasValue;
+			if(value !== "" && value !== null) {
+				hasValue = true;
+			} else {
+				hasValue = false;
+			}
+			return hasValue;
+		}
+
+		function setTheme(theme) {
+			if(theme) {
+				var themeColor = theme == 'dark' ? '#111' : '#fff';
+				var hoverColor = theme == 'dark' ? 'rgba(255,255,255,0.1)' : '#eee';
+				document.documentElement.style.setProperty('--device-theme', themeColor);
+				document.documentElement.style.setProperty('--device-theme-text', theme == 'dark' ? '#fff' : '#111');
+				document.documentElement.style.setProperty('--device-theme-hover', hoverColor);
+				if(theme == 'dark') {
+					document.getElementById('themeToggle').checked= true;
+					document.querySelectorAll('.modal').forEach(function(elem) {
+				    	elem.style.backgroundColor="#424242";
+				    });
+				} else {
+					document.getElementById('themeToggle').checked= false;
+					document.querySelectorAll('.modal').forEach(function(elem) {
+				    	elem.style.backgroundColor="#fff";
+				    });
+				}
+			} else {
+				/*var color = localStorage.getItem('backstock-theme');
+				if(color) {
+					document.documentElement.style.setProperty('--theme-color', color);
+					document.documentElement.style.setProperty('--theme-color-hover', tinycolor(color).darken(10).toString());
+				}*/
+				if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				    document.documentElement.style.setProperty('--device-theme', '#111');
+				    document.documentElement.style.setProperty('--device-theme-text', '#fff');
+				    document.documentElement.style.setProperty('--device-theme-hover', 'rgba(255,255,255,0.1)');
+				    document.getElementById('themeToggle').checked= true;
+				    document.querySelectorAll('.modal').forEach(function(elem) {
+				    	elem.style.backgroundColor="#424242";
+				    });
+				} else {
+					document.documentElement.style.setProperty('--device-theme', '#fff');
+				    document.documentElement.style.setProperty('--device-theme-text', '#000');
+				    document.documentElement.style.setProperty('--device-theme-hover', '#eee');
+				    document.getElementById('themeToggle').checked= false;
+				    document.querySelectorAll('.modal').forEach(function(elem) {
+				    	elem.style.backgroundColor="#fff";
+				    });
+				}
+			}
+		}
+		!function(t,e){"use strict";function n(){this.dispatchEvent(new CustomEvent("long-press",{bubbles:!0,cancelable:!0})),clearTimeout(o),console&&console.log&&console.log("long-press fired on "+this.outerHTML)}var o=null,s="ontouchstart"in t||navigator.MaxTouchPoints>0||navigator.msMaxTouchPoints>0,u=s?"touchstart":"mousedown",a=s?"touchcancel":"mouseout",i=s?"touchend":"mouseup";"initCustomEvent"in e.createEvent("CustomEvent")&&(t.CustomEvent=function(t,n){n=n||{bubbles:!1,cancelable:!1,detail:void 0};var o=e.createEvent("CustomEvent");return o.initCustomEvent(t,n.bubbles,n.cancelable,n.detail),o},t.CustomEvent.prototype=t.Event.prototype),e.addEventListener(u,function(t){var e=t.target,s=parseInt(e.getAttribute("data-long-press-delay")||"1500",10);o=setTimeout(n.bind(e),s)}),e.addEventListener(i,function(t){clearTimeout(o)}),e.addEventListener(a,function(t){clearTimeout(o)})}(this,document);
+	</script>
+</body>
+</html>
