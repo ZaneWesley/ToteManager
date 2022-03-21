@@ -12,7 +12,7 @@
 	<!-- Apple -->
 	<meta name="apple-mobile-web-app-title" content="Tote Manager">
 	<link rel="apple-touch-icon" sizes="500x500" href="icon.png">
-	<link name="apple-mobile-web-app-status-bar-style" content="#2196F3"><!--black-translucent-->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#2196F3"><!--black-translucent-->
 	<link rel="mask-icon" href="icon.png" color="#DFB698">
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -955,6 +955,7 @@
 		    }
 		  }
 		  activeTab = tab;
+		  console.log('tab');
 		  switch(activeTab) {
 		  	case 'Number-Totes':
 		  		document.querySelector('header h1').innerHTML="Number Totes";
