@@ -2,7 +2,7 @@
   "name": "Tote Manager",
   "short_name": "Tote Manager",
   "display": "standalone",
-  "start_url": "/index",
+  "start_url": "index",
   "icons": [
     {
       "src": "icon.png",
