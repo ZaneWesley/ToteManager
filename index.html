@@ -5,13 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- General -->
 	<link rel="manifest" href="manifest.json">
-	<meta name="theme-color" content="#ffffff">
+	<meta name="theme-color" content="#2196F3">
 	<meta name="application-name" content="Tote Manager">
   	<link rel="shortcut icon" href="icon.png">
 	<link rel="icon" type="image/png" sizes="500x500" href="icon.png">
 	<!-- Apple -->
 	<meta name="apple-mobile-web-app-title" content="Tote Manager">
 	<link rel="apple-touch-icon" sizes="500x500" href="icon.png">
+	<link name="apple-mobile-web-app-status-bar-style" content="#2196F3"><!--black-translucent-->
 	<link rel="mask-icon" href="icon.png" color="#DFB698">
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -250,6 +251,9 @@
 			color: var(--device-theme-text);
 			background-color: transparent;
 		}
+		a {
+			color: blue;
+		}
 		button {
 			border: none;
 			padding: 16px;
@@ -308,7 +312,7 @@
 			font-weight: normal;
 			color: #000;
 		}
-		.location, .flag, .notes {
+		.location, .flag {
 			display: none;
 		}
 		.palette {
@@ -648,6 +652,9 @@
 				//color scripting
 				document.documentElement.style.setProperty('--theme-color', this.getAttribute('data-tab-color'));
 				document.documentElement.style.setProperty('--theme-color-hover', tinycolor(this.getAttribute('data-tab-color')).darken(10).toString());
+				//theme scripting
+				document.querySelector('meta[name=theme-color]').setAttribute('content', this.getAttribute('data-tab-color'));
+				document.querySelector('meta[name=apple-mobile-web-app-status-bar-style]').setAttribute('content', this.getAttribute('data-tab-color'));
 				//tab customizing
 				document.getElementById('location').value = activeTab;
 			});
@@ -744,7 +751,7 @@
 			// Edit item entry in the Firebase database.
 		  	return firebase.firestore().collection('totemanager').doc(id).update({
 			    name: name,
-			    notes: notes,
+			    notes: notes.replace('<a href="', '').replace('">Open Doc</a>', ''),
 			    date: date,
 			    location: location,
 			    flagged: flagged
@@ -799,7 +806,7 @@
 		  item.innerHTML = TABLE_ROW_TEMPLATE;
 		  item.id = id;
 		  item.querySelector('.name').innerHTML=name;
-		  item.querySelector('.notes').innerHTML=notes;
+		  item.querySelector('.notes').innerHTML=`<a href="${notes}">Open Doc</a>`;
 		  item.querySelector('.date').innerHTML=formattedDate(date);
 		  item.querySelector('.location').innerHTML=location;
 		  item.querySelector('.flag').innerHTML=flagged;
@@ -813,7 +820,12 @@
 		  	flagItem(item, !item.classList.contains('flagged'));
 		  }*/
 		  item.onclick = function(e) {
-		  	editItem(item);
+		  	if(e.target.nodeName == "A") {
+		  		e.preventDefault();
+		  		window.open(e.target.href);
+		  	} else {
+		  		editItem(item);
+		  	}
 		  	//flagItem(item, !item.classList.contains('flagged'));
 		  }
 		  item.setAttribute('data-long-press-delay', 100);
@@ -850,7 +862,7 @@
 		function editItem(itemElem) {
 			var item = {
 				name: itemElem.querySelector('.name').innerHTML,
-				notes: itemElem.querySelector('.notes').innerHTML,
+				notes: itemElem.querySelector('.notes').innerHTML.replace('<a href="', '').replace('">Open Doc</a>', ''),
 				date: itemElem.querySelector('.date').innerHTML,
 				location: itemElem.querySelector('.location').innerHTML,
 				flagged: itemElem.querySelector('.flag').innerHTML
@@ -888,7 +900,7 @@
 		function flagItem(elem, bool) {
 			var item = {
 				name: elem.querySelector('.name').innerHTML,
-				notes: elem.querySelector('.notes').innerHTML,
+				notes: elem.querySelector('.notes').innerHTML.replace('<a href="', '').replace('">Open Doc</a>', ''),
 				date: elem.querySelector('.date').innerHTML,
 				location: elem.querySelector('.location').innerHTML,
 				flagged: elem.querySelector('.flag').innerHTML
